@@ -6,47 +6,42 @@ services:
       - 30001
     ports:
       - 30001:30001
-    command: mongod --port 30001 --replSet uhndatalake
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - ./file.key:/data/file.key:ro
+    command: mongod --port 30001 --replSet uhndatalake --keyFile /data/file.key
   mongo2:
     image: mongo:5.0.9
     expose:
       - 30002
     ports:
       - 30002:30002
-    command: mongod --port 30002 --replSet uhndatalake
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - ./file.key:/data/file.key:ro
+    command: mongod --port 30002 --replSet uhndatalake --keyFile /data/file.key
   mongo3:
     image: mongo:5.0.9
     expose:
       - 30003
     ports:
       - 30003:30003
-    command: mongod --port 30003 --replSet uhndatalake
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - ./file.key:/data/file.key:ro
+    command: mongod --port 30003 --replSet uhndatalake --keyFile /data/file.key
   mongoinit:
     image: mongo:5.0.9
     depends_on:
       - mongo1
       - mongo2
       - mongo3
-    command: >
-      mongo --host mongo1:30001 --eval
-      '
-      db = (new Mongo("mongo1:30001")).getDB("sling");
-      config = {
-        "_id": "uhndatalake",
-        "members": [
-          {
-            "_id": 0,
-            "host": "mongo1:30001"
-          },
-          {
-            "_id": 1,
-            "host": "mongo2:30002"
-          },
-          {
-            "_id": 2,
-            "host": "mongo3:30003"
-          }
-        ]
-      };
-      rs.initiate(config);
-      '
+    volumes:
+      - ./mongoinit.sh:/mongoinit.sh:ro
+    entrypoint: ["/mongoinit.sh"]
