@@ -19,6 +19,20 @@ List the running containers with `docker-compose ps`. Once the
 `mongoinit` container shows a _State_ of `Exit 0`, the Mongo replica set
 is ready to be used.
 
+Edit your `/etc/hosts` file and replace the line
+
+```
+127.0.0.1	localhost
+```
+
+with
+
+```
+127.0.0.1	localhost mongo1 mongo2 mongo3
+```
+
+You can now connect to this local replica set as `mongodb://root:password@mongo1:30001,mongo2:30002,mongo3:30003/?replicaSet=uhndatalake`.
+
 ### Stopping
 
 ```bash
